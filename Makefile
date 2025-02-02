@@ -1,50 +1,39 @@
-CLIENT = client
-SERVER = server
+NAME = minishell
 
-CLIENT_BONUS = client_bonus
-SERVER_BONUS = server_bonus
-
-CLIENT_SRC = client.c ft_atoi.c ft_isdigit.c utils.c
-SERVER_SRC = server.c ft_itoa.c ft_isdigit.c ft_strlcpy.c ft_calloc.c ft_memset.c utils.c
-
-CLIENT_BONUS_SRC = client_bonus.c ft_atoi.c ft_isdigit.c utils.c
-
-SERVER_BONUS_SRC = server_bonus.c ft_itoa.c ft_isdigit.c ft_strlcpy.c ft_calloc.c ft_memset.c utils.c
-
-CLIENT_OBJ = $(CLIENT_SRC:.c=.o)
-SERVER_OBJ = $(SERVER_SRC:.c=.o)
-CLIENT_BONUS_OBJ = $(CLIENT_BONUS_SRC:.c=.o)
-SERVER_BONUS_OBJ = $(SERVER_BONUS_SRC:.c=.o)
-
-CFLAGS = -Wall -Wextra -Werror
 CC = gcc
 
+CFLAGS = -Wall -Wextra -Werror 
 
-all: $(CLIENT) $(SERVER)
+SRC =   tokenizer/fill_tokenmatrix.c tokenizer/get_tokens_number.c tokenizer/tokenizer.c\
+		builtins/ft_export.c builtins/ft_env.c builtins/ft_env_lists.c builtins/ft_cd.c builtins/ft_echo.c builtins/ft_exit.c builtins/ft_pwd.c \
+		parsing.c\
+		executor/executor.c executor/heredoc_utils.c executor/redirutils.c executor/redirops.c executor/pipeutils_p1.c executor/pipeutils_p2.c\
+		test/pipe_test.c test/printmatrix.c\
+		utils/ft_split.c utils/init.c utils/free.c utils/list_utils.c utils/cmd_utils.c utils/general_utils.c\
+		main.c \
 
-bonus: $(CLIENT_BONUS) $(SERVER_BONUS)
-
-$(CLIENT): $(CLIENT_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-
-$(CLIENT_BONUS): $(CLIENT_BONUS_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ 
-
-$(SERVER): $(SERVER_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-
-$(SERVER_BONUS): $(SERVER_BONUS_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ 
+OBJ = $(SRC:.c=.o)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(NAME): $(OBJ)
+	$(CC) $(OBJ) -lreadline -o $(NAME)
+
+# Clean object files and MiniLibX
 clean:
-	rm -f $(CLIENT_OBJ) $(SERVER_OBJ) $(CLIENT_BONUS_OBJ) $(SERVER_BONUS_OBJ)
+	rm -f $(OBJ)
 
+# Clean everything, including the final executable
 fclean: clean
-	rm -f $(CLIENT) $(SERVER) $(CLIENT_BONUS) $(SERVER_BONUS)
+	rm -f $(NAME)
 
+# Rebuild everything
 re: fclean all
 
-.PHONY: all clean fclean re
+# Build with optimizations (use this for release, removes AddressSanitizer)
+release: CFLAGS := -Wall -Wextra -Werror
+release: fclean $(NAME)
+
+all: $(NAME)
+
